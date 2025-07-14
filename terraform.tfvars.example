@@ -1,0 +1,36 @@
+# Intersight API Configuration
+api_key_id       = "your-intersight-api-key-id-here"
+api_private_key  = "-----BEGIN RSA PRIVATE KEY-----\nREPLACE-WITH-YOUR-ACTUAL-PRIVATE-KEY-CONTENT\nNEVER-COMMIT-REAL-KEYS-TO-VERSION-CONTROL\n-----END RSA PRIVATE KEY-----"
+api_uri         = "https://intersight.com"
+
+# Organization and Naming
+org_name = "default"  # Your Intersight organization name
+prefix   = "demo"     # Prefix for all resource names
+
+# UCS Domain Configuration
+name_of_ucs_domain               = "demo-UCS-Domain"
+description_of_ucs_domain_profile = "Demo UCS Domain Profile"
+
+# Pool Configurations
+uuid_prefix      = "AA020000-0000-0001"
+mac_pool_a_start = "00:25:B5:AA:00:00"
+mac_pool_a_end   = "00:25:B5:AA:00:FF"
+mac_pool_b_start = "00:25:B5:BB:00:00"
+mac_pool_b_end   = "00:25:B5:BB:00:FF"
+
+# IP Pool Configuration (for in-band management)
+ip_pool_start   = "192.168.100.100"
+ip_pool_end     = "192.168.100.200"
+ip_pool_gateway = "192.168.100.1"
+ip_pool_netmask = "255.255.255.0"
+
+# NTP Configuration
+ntp_servers = ["pool.ntp.org", "time.nist.gov"]
+timezone    = "America/New_York"
+
+# SNMP Configuration (optional)
+snmp_contact     = "admin@yourcompany.com"
+snmp_location    = "Data Center 1"
+snmp_user_name   = "admin"
+snmp_auth_password = ""  # Set if using SNMP v3 authentication
+snmp_priv_password = ""  # Set if using SNMP v3 privacy
