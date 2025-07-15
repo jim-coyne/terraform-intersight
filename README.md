@@ -1,6 +1,6 @@
-# Cisco UCS Intersight Terraform Configuration
+# Terraform-Intersight
 
-This Terraform configuration provides a comprehensive deployment for Cisco UCS infrastructure using the Intersight cloud management platform. It creates all necessary policies, pools, and profiles for a complete UCS server deployment.
+This repository provides an Infrastructure-as-Code approach for configuring Cisco UCS in Intersight Managed Mode (IMM) using Terraform modules. It automates the deployment of domain profiles, server policies, pools, and server profile templates.
 
 ## Overview
 
@@ -46,44 +46,7 @@ Copy the example variables file and customize it:
 cp terraform.tfvars.example terraform.tfvars
 ```
 
-Then edit `terraform.tfvars` with your environment-specific values:
-
-```hcl
-# Intersight API Configuration - REPLACE WITH YOUR ACTUAL VALUES
-api_key_id       = "your-actual-api-key-id-here"
-api_private_key  = "-----BEGIN RSA PRIVATE KEY-----\nYOUR-ACTUAL-PRIVATE-KEY-CONTENT\n-----END RSA PRIVATE KEY-----"
-api_uri         = "https://intersight.com"
-
-# Organization and Naming
-org_name = "default"  # Your Intersight organization name
-prefix   = "demo"     # Prefix for all resource names
-
-# UCS Domain Configuration
-name_of_ucs_domain               = "demo-UCS-Domain"
-description_of_ucs_domain_profile = "Demo UCS Domain Profile"
-
-# Pool Configurations
-uuid_prefix      = "AA020000-0000-0001"
-mac_pool_a_start = "00:25:B5:AA:00:00"
-mac_pool_a_end   = "00:25:B5:AA:00:FF"
-mac_pool_b_start = "00:25:B5:BB:00:00"
-mac_pool_b_end   = "00:25:B5:BB:00:FF"
-
-# IP Pool Configuration (for in-band management)
-ip_pool_start   = "192.168.100.100"
-ip_pool_end     = "192.168.100.200"
-ip_pool_gateway = "192.168.100.1"
-ip_pool_netmask = "255.255.255.0"
-
-# NTP Configuration
-ntp_servers = ["pool.ntp.org", "time.nist.gov"]
-timezone    = "America/New_York"
-
-# SNMP Configuration (optional)
-snmp_contact  = "admin@yourcompany.com"
-snmp_location = "Data Center 1"
-snmp_user_name = "admin"
-```
+Then edit `terraform.tfvars` with your environment-specific values.
 
 ### 4. Initialize Terraform
 
@@ -170,18 +133,6 @@ terraform show intersight_server_profile_template.ucs_server_profile_template
 2. Run `terraform plan` to review changes
 3. Run `terraform apply` to implement changes
 
-### Scale Operations
-
-To add additional MAC pools or modify existing pools:
-
-```hcl
-# Add to terraform.tfvars
-mac_pool_c_start = "00:25:B5:CC:00:00"
-mac_pool_c_end   = "00:25:B5:CC:00:FF"
-```
-
-Then add the corresponding resource to `main.tf`.
-
 ### Cleanup
 
 To remove all resources:
@@ -192,142 +143,8 @@ terraform destroy
 
 **⚠️ Warning**: This will delete all created Intersight policies and profiles. Ensure no servers are using these profiles before destroying.
 
-## Troubleshooting
-
-### Common Issues
-
-1. **API Authentication Errors**
-   - Verify API key ID and private key are correct
-   - Ensure private key includes proper BEGIN/END markers
-   - Check Intersight account permissions
-
-2. **Organization Not Found**
-   - Verify `org_name` matches your Intersight organization exactly
-   - Check organization access permissions
-
-3. **Resource Conflicts**
-   - Ensure resource names don't conflict with existing objects
-   - Use unique prefixes for different environments
-
-4. **Network Connectivity**
-   - Verify internet connectivity to intersight.com
-   - Check firewall/proxy settings
-
-### Validation Commands
-
-```bash
-# Check Terraform configuration syntax
-terraform validate
-
-# Verify provider configuration
-terraform providers
-
-# Check current state
-terraform state list
-
-# Refresh state from Intersight
-terraform refresh
-```
-
-### Debug Mode
-
-Enable debug logging for troubleshooting:
-
-```bash
-export TF_LOG=DEBUG
-terraform apply
-```
-
-## Advanced Configuration
-
-### Custom BIOS Settings
-
-The BIOS policy can be extended with specific settings:
-
-```hcl
-resource "intersight_bios_policy" "m7_bios_policy" {
-  # ... existing configuration ...
-  
-  # Add specific BIOS settings
-  intel_hyper_threading_tech = "enabled"
-  intel_virtualization_technology = "enabled"
-  # Add more settings as needed
-}
-```
-
-### Additional Pools
-
-Add additional resource pools as needed:
-
-```hcl
-# Additional IP Pool for different VLAN
-resource "intersight_ippool_pool" "mgmt_ip_pool" {
-  name = "${var.prefix}-MGMT-IP-Pool"
-  # ... configuration ...
-}
-```
-
-## Security Considerations
-
-1. **API Key Security**: 
-   - Store API keys securely, never commit to version control
-   - Use environment variables or secure vaults for production
-   - The `.gitignore` file prevents accidental commits of sensitive files
-
-2. **Variable Files**: 
-   - `terraform.tfvars` is excluded from Git by default
-   - Use `terraform.tfvars.example` as a template
-   - Never commit actual credentials to version control
-
-3. **State Files**: 
-   - Terraform state files may contain sensitive data
-   - Consider using remote state storage (S3, Terraform Cloud, etc.)
-   - State files are excluded from Git by default
-
-4. **Access Control**: Use Intersight RBAC for appropriate access levels
-
-### Setting up Environment Variables (Recommended)
-
-Instead of using `terraform.tfvars`, you can set environment variables:
-
-```bash
-export TF_VAR_api_key_id="your-api-key-id"
-export TF_VAR_api_private_key="$(cat /path/to/SecretKey.txt)"
-export TF_VAR_org_name="your-org-name"
-# ... other variables
-```
-
 ## Support and Documentation
 
 - **Cisco Intersight Documentation**: https://intersight.com/help
 - **Terraform Intersight Provider**: https://registry.terraform.io/providers/CiscoDevNet/intersight
 - **UCS Documentation**: https://www.cisco.com/c/en/us/support/servers-unified-computing/index.html
-
-## License
-
-This configuration is provided as-is for educational and demonstration purposes. Ensure compliance with your organization's policies and Cisco licensing terms.
-
----
-
-## Quick Start Summary
-
-1. Get Intersight API keys
-2. Create `terraform.tfvars` with your values
-3. Run `terraform init && terraform plan && terraform apply`
-4. All 22 UCS resources will be created
-5. Use the server profile template to deploy servers
-
-For questions or issues, refer to the troubleshooting section or Cisco documentation.
-
-## File Structure
-
-```
-terraform-intersight/
-├── main.tf                     # Main Terraform configuration
-├── variables.tf                # Variable definitions
-├── outputs.tf                  # Output definitions
-├── versions.tf                 # Provider version requirements
-├── terraform.tfvars.example    # Example variables file
-├── .gitignore                  # Git ignore rules
-└── README.md                   # This documentation
-```
